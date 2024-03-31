@@ -1,0 +1,338 @@
+<!doctype HTML>
+<HTML>
+<head>
+</head>
+<body>
+	<script>
+
+		// Authors notes
+
+		// Create instances of objects for each game piece that carry current position
+		// and the src of the image. Also store the moveset and color.
+
+		// Implement methods that attach, detach, or destroy a selected piece from a cell.
+
+		// Track currently selected with onclick event and when pieces deselected remove 
+
+		// Chess Implementation
+
+		// [x-y axis offset], [repeating moveset]
+		// knight
+		// [[[-1, 2], [-1, -2], [-2, 1], [-2, -1], [1, 2], [1, -2], [2, 1], [2, -1]], [false]]
+		// [[1020, 1002, 2010, 2001, 0120, 0102, 0210, 0201], [false]];
+		// bishop
+		// [[1010, 1001, 0110, 0101][true]];
+		// rook
+		// [[1000, 0100, 0010, 0001][true]];
+		// queen
+		// [rook[0].concat(bishop[0]), [true]]; 
+		// king
+		// [queen, [false]]
+
+
+		// Classes: Board, slot, piece
+
+		// Board contains methods that involve searching the board, and validating moves.
+		// Also contains array's of 
+		// slot contains pieces and methods for altering classes.
+		// piece contains a pieces property info 
+
+		// piece has method for assigning itself to a cell
+
+
+		class piece {
+			constructor (parent, position, moveset, name, color) {
+				this.parent = parent;
+				this.moved = false;
+				// array with [x, y] cords.
+				this.position = position;
+				this.moveset = moveset;
+				this.name = name;
+				this.color = color;
+				this.selection = [];
+			}
+
+			// onclick method for each piece that highlights valid moves.
+			// records valid moves for piece in obj property until piece is deselected.
+			select () {
+				let tempPos = this.position;
+				this.moveset[0].forEach(move => {
+					do {
+						tempPos[0] += move[0];
+						tempPos[1] += move[1];
+
+						if (!chessBoard.inBounds(tempPos)) {
+							break;
+						}
+
+						// passes the piece into the slot to compare against.
+						if (chessBoard.find(tempPos).select(this)) {
+							
+						}
+
+
+
+					} while (this.moveset[1] == true)
+				});
+			}
+
+			deselect () {
+
+			}
+
+			// takes a position and moves the piece there
+			move (position) {
+
+			}
+		}
+
+		class pawn extends piece {
+			constructor (position, moveset, src, name, color, attack, special) {
+				super(position, moveset, src, name, color);
+				this.attack = attack;
+			}
+		}
+
+
+
+
+
+
+
+		class slot {
+			constructor (div, piece) {
+				this.div = div;
+				this.overlay = div.children[0];
+				this.img = div.children[1];
+				// set to false if piece not present.
+				this.piece = piece;
+			}
+
+			update () {
+				if (this.piece) {
+					this.img.src = 'Images/' + this.piece.name + '.jpg';
+				}
+			}
+
+			select (otherPiece) {
+				if (this.piece) {
+					if (this.piece.color == otherPiece.color) {
+						return false;
+					} else {
+						this.overlay.style.backgroundColor = 'red';
+						this.overlay.style.display = 'inline-block';
+						return false;
+					}
+				} else {
+					this.overlay.style.backgroundColor = 'yellow';
+					this.overlay.style.display = 'inline-block';
+					return true;
+				}
+			}
+
+			deselect () {
+				this.overlay.style.display = 'hidden';
+			}
+		}
+
+
+
+
+
+
+
+
+
+		// Start of board
+		class board {
+			constructor () {
+				// stores white, then black pieces.
+				this.pieces = [[], []];
+				this.width = window.innerWidth;
+				this.height = window.innerHeight;
+				this.size = Math.min(Math.floor(this.width / 8), Math.floor(this.height / 8));
+				this.board = this.initialBoard();
+
+			}
+
+			// returns a slot on the board.
+			find (pos) {
+				return this.board[pos[1]][pos[0]];
+			}
+
+			// returns selected div and it's child image.
+			selector (pos) {
+				if (this.inBounds(pos)) {
+					this.board[pos[0] + pos[1] * 8];
+				}
+			}
+
+			// check if position is in bounds of board.
+			inBounds(pos) {
+				if (pos[0] >= 0 && pos[0] <= 7) {
+					if (pos[1] >= 0 && pos[1] <= 7) {
+						return true;
+					}
+				}
+				return false;
+			}
+
+			// If you want to swap x and y with pos
+			// getDiv(pos) {
+			// 	return board[pos[1]][pos[0]];
+			// }
+
+			// returns elements specified by click event cords.
+			retrieveElement(e) {
+				let div = board[Math.floor(e.pageY / size)][Math.floor(e.pagex / size)];
+			}
+
+
+
+
+
+
+
+
+
+
+
+			// Board method that initializes board.
+			// Ugly trim up later.
+			initialBoard() {
+				let board = [];
+				for (let i = 0; i < 8; i++) {
+      				let row = [];
+			    	for (let j = 0; j < 8; j++) {
+
+			    		// Creates a div in the shape of a square 
+				    	let cell = document.createElement('div');
+			    		cell.style.width = this.size + 'px';
+				    	cell.style.height = this.size + 'px';
+				    	cell.style.boxSizing = 'border-box';
+				    	cell.style.position = 'fixed';
+				    	cell.style.left = this.size * j + 'px';
+				    	cell.style.top = this.size * i + 'px';
+
+				    	// Creates a transparent overlay for visually showing highlights
+				    	let overlay = document.createElement('div');
+			    		overlay.style.width = this.size + 'px';
+				    	overlay.style.height = this.size + 'px';
+				    	overlay.style.position = 'fixed';
+				    	overlay.style.left = this.size * j + 'px';
+				    	overlay.style.top = this.size * i + 'px';
+			            overlay.style.backgroundColor = 'yellow';
+			            overlay.style.opacity = '0.5';
+			            overlay.style.display = 'none';
+			            
+			            // overlay is first child of cell.
+			            cell.appendChild(overlay);
+		          
+				        let img = document.createElement('img');
+				        img.style.width = '100%';
+				        img.style.height = '100%';
+				        
+				        // Assign the initial piece setup.
+				        if (i == 0) {
+				          	if (j == 0 || j == 7) {
+				          		img.src = 'Images/B_Rook.png';
+				          	} else if (j == 1 || j == 6) {
+				          		img.src = 'Images/B_Knight.png';
+				          	} else if (j == 2 || j == 5) {
+				          		img.src = 'Images/B_Bishop.png';
+				          	} else if (j == 3) {
+				          		img.src = 'Images/B_King.png';
+				          	} else if (j == 4) {
+				          		img.src = 'Images/B_Queen.png';
+				          	}
+				        } else if (i == 1) {
+				        	img.src = 'Images/B_Pawn.png';
+				        } else if (i == 6) {
+				          	img.src = 'Images/W_Pawn.png';
+				        } else if (i == 7) {
+				        	if (j == 0 || j == 7) {
+				          		img.src = 'Images/W_Rook.png';
+				          	} else if (j == 1 || j == 6) {
+				          		img.src = 'Images/W_Knight.png';
+				          	} else if (j == 2 || j == 5) {
+				          		img.src = 'Images/W_Bishop.png';
+				          	} else if (j == 3) {
+				          		img.src = 'Images/W_King.png';
+				          	} else if (j == 4) {
+				          		img.src = 'Images/W_Queen.png';
+				          	}
+				        } else {
+				        	img.style.display = 'none';
+				        }
+
+				        // image of chess piece is second child of cell, alternates source as pieces move.
+				        cell.appendChild(img);
+
+				    	// tile color attribution.
+				    	if (i % 2 == 0) {
+				    		if (j % 2 == 0) {
+				    			cell.style.backgroundColor = 'white';
+				    		} else {
+				    			cell.style.backgroundColor = 'grey';
+				    		}
+				    	} else {
+				    		if (j % 2 == 0) {
+				    			cell.style.backgroundColor = 'grey';
+				    		} else {
+				    			cell.style.backgroundColor = 'white';
+				    		}
+				    	}
+	            		row.push(cell);
+				    }
+			    	board.push(row);
+				}
+				return board;
+			}
+
+
+
+			addPiece(pos, name, color) {
+
+			}
+
+
+			initialPieces() {
+				// | R : Rook | N : Knight | B : Bishop | K : King | Q : Queen |
+				let arrangement = ['Rook', 'Knight', 'Bishop', 'King', 'Queen', 'Bishop', 'Knight', 'Rook'];
+
+				// seems irrelvant.
+				//for (let i = 0; i < 8; i++) {
+				//	for (let j = 0; j < 8; j++) {
+
+				//	}
+				//	this.board[0][i];
+				//}
+
+				// asigns the pieces to their starting places
+				this.board[0].forEach(cell => {
+					//Switc
+					cell.children[1].src = source;});
+
+			}
+
+
+			retrieveElement(e) {
+				// Uses the floor of the value of x and y divided by cell size to determine indices for cells on the chessboard.
+				let div = chessBoard.board[Math.floor(e.pageY / chessBoard.size)][Math.floor(e.pageX / chessBoard.size)];
+				// Enables overlay to display. Default color is yellow highlight.
+				div.children[0].style.display = 'inline-block';
+			}
+
+
+
+			// Board object continues here
+		}
+
+		let chessBoard = new board();
+		chessBoard.board.forEach(row => {row.forEach(cell => {document.body.appendChild(cell);});});
+
+		window.addEventListener('click', chessBoard.retrieveElement);
+
+	</script>
+</body>
+</HTML>
