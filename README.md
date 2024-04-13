@@ -1,5 +1,6 @@
 # Chess
 Chess game coded in javascript (WIP)
+# Old project, plan to retry using React to deal with code complexity.
 
 Very much a work in progress, currently only has a functioning board and "highlight" feature.
 
