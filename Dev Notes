@@ -1,0 +1,3 @@
+Store board tiles in a hashtable.
+Each chess piece stores a local copy of board as 'moves' with a bool indicating whether or not the piece can move there.
+When determining valid king moves request the moves hashtable of each opposing teams pieces and check the board position you are trying to move to "moves[E6] == false".
